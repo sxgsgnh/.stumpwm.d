@@ -1,0 +1,48 @@
+; SLIME 2.20
+CL-USER> (in-package :stumpwm)
+#<PACKAGE "STUMPWM">
+STUMPWM> (defcommand conker () ()
+	   (run-or-raise "~/conker" '(:class "conker1")))
+#S(COMMAND :NAME CONKER :CLASS T :ARGS NIL)
+STUMPWM> (conker)
+#<SB-IMPL::PROCESS 2438 :RUNNING>
+STUMPWM> (define-key *root-map* (kbd "F12") "fullscreen")
+NIL
+STUMPWM> (define-key *top-map* (kbd "s-F12") "fullscreen")
+NIL
+STUMPWM> (defcommand xpdf (name) ("pdf file"))
+; in: DEFCOMMAND XPDF
+;     (SB-INT:NAMED-LAMBDA STUMPWM::XPDF
+;         (STUMPWM::NAME)
+;       (BLOCK STUMPWM::XPDF
+;         (LET ((STUMPWM:%INTERACTIVEP% STUMPWM::*INTERACTIVEP*)
+;               (STUMPWM::*INTERACTIVEP* NIL))
+;           (DECLARE (IGNORABLE STUMPWM:%INTERACTIVEP%))
+;           (STUMPWM:RUN-HOOK-WITH-ARGS STUMPWM:*PRE-COMMAND-HOOK* 'STUMPWM::XPDF)
+;           (MULTIPLE-VALUE-PROG1 (PROGN)
+;             (STUMPWM:RUN-HOOK-WITH-ARGS STUMPWM:*POST-COMMAND-HOOK*
+;                                         'STUMPWM::XPDF)))))
+; 
+; caught STYLE-WARNING:
+;   The variable NAME is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+#S(COMMAND :NAME XPDF :CLASS T :ARGS ("pdf file"))
+STUMPWM> *shell-program*
+"/bin/sh"
+STUMPWM> (define-key (kbd "c") "run-shell-command urxvt")
+; Evaluation aborted on #<SB-INT:SIMPLE-PROGRAM-ERROR "invalid number of arguments                                 : ~S" {10070D9FE3}>.
+STUMPWM> (defcommand urxvt () ())
+#S(COMMAND :NAME URXVT :CLASS T :ARGS NIL)
+STUMPWM> (defcommand urxvt () ()
+	   (run-or-raise "urxvt" '(:class "urxvt")))
+WARNING: redefining STUMPWM:URXVT in DEFUN
+#S(COMMAND :NAME URXVT :CLASS T :ARGS NIL)
+STUMPWM> (define-key (kbd "c") "urxvt")
+; Evaluation aborted on #<SB-INT:SIMPLE-PROGRAM-ERROR "invalid number of arguments: ~S" {1005E2C7F3}>.
+STUMPWM> (define-key *root-map* (kbd "c") "urxvt")
+NIL
+STUMPWM> (undefine-key *root-map* (kbd "c"))
+NIL
+STUMPWM> 
