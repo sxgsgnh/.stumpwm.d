@@ -2,44 +2,52 @@
 (in-package :stumpwm)
 (set-module-dir "/home/sgnh/.stumpwm.d/modules")
 
-(run-shell-command "feh --bg-scale /usr/share/wallpapers/PastelHills/contents/images/1024x768.jpg")
-;;(run-shell-command "xcompmgr -f")
+(run-shell-command "feh --bg-scale /usr/share/backgrounds/archlinux/archlinux-aftermath.jpg")
 (run-shell-command "fcitx")
 (run-shell-command "emacs --bg-daemon=stumpwm")
 (run-shell-command "xmodmap /home/sgnh/.xmodmap")
-(run-shell-command "xcape")
-;; (run-shell-command "sudo sh /home/sgnh/.local/XX-Net-3.12.11/xx_net.sh")
-
-;; (load-module "swm-gaps")
-;; (setf swm-gaps:*inner-gaps-size* 2)
-;; (setf swm-gaps:*outer-gaps-size* 2)
-
 (setf *window-format* "%n-%c")
+
+
+(defmacro add-to-list (list emt)
+  `(setf ,list (append ,list (list ,emt))))
 
 (load-module "ttf-fonts")
 
 (xft:cache-fonts)
-(set-font (list (make-instance 'xft:font
-			       :family "DejaVu Sans Mono"
-			       :subfamily "Book"
-			       :size 14)
-		(make-instance 'xft:font
-			       :family "stumpwm"
-			       :subfamily "Regular"
-			       :size 12)
-		(make-instance 'xft:font
-			       :family "YaHei Consolas Hybrid"
-			       :subfamily "YaHei Consolas Hybrid Regular"
-			       :size 12)))
+(set-font (list  (make-instance 'xft:font
+				:family "DejaVu Sans"
+				:subfamily "Book"
+				:size 14)
+		 (make-instance 'xft:font
+				:family "font-logos"
+				:subfamily "logos"
+				:size 14)
+		 (make-instance 'xft:font
+				:family "Font Awesome 5 Brands Regular"
+				:subfamily "Regular"
+				:size 14)
+		 (make-instance 'xft:font
+				:family "Font Awesome 5 Pro Regular"
+				:subfamily "Regular"
+				:size 14)
+		 (make-instance 'xft:font
+				:family "Font Awesome 5 Pro Solid"
+				:subfamily "Solid"
+				:size 10)))
 
 (load-module "hostname")
 
-(setf *mode-line-timeout* 30)
+(load "~/.stumpwm.d/mode-line.lisp")
+(setf *mode-line-timeout* 60)
 (setf *time-modeline-string* "%k:%M")
-(setf *screen-mode-line-format* (list "%h %W^>"
-				      " ^f1"
-				      (string #\UE006)
-				      "  ^f0%d"))
+;; (setq *window-number-map* (concatenate 'string #(#\U2460 #\U2461 #\U2462 #\U2463
+;; 						 #\U2464 #\U2465 #\U2466 #\U2467
+;; 						 #\U2468 #\U2469)))
+
+(setf *screen-mode-line-format* (list " ^f1^6"
+				      (string #\Uf103)
+				      "^* ^f0%h %W^>[^f3%V] ^f0^f4%I^f0 %B %d"))
 
 (setf *mode-line-background-color* "#2A3635")
 (setf *mode-line-foreground-color* "gray80")
@@ -62,7 +70,11 @@
 (setf *transient-gravity* :center)
 (setf *input-window-gravity* :center)
 (setf *message-window-gravity* :center)
-(set-win-bg-color "black")
+(set-fg-color "gray")
+(set-bg-color *mode-line-background-color*)
+(set-msg-border-width 2)
+(setf *message-window-padding* 10)
+(set-win-bg-color "gray10")
 (set-focus-color "yellow")
 
 (set-unfocus-color "black")
@@ -71,7 +83,7 @@
 (defcommand chrome () ()
   (run-or-raise "chromium" '(:class "chrome1")))
 
-(defcommand pdf () ()
+(defcommand llpp () ()
   (run-or-raise "llpp" '(:class "pdfview")))
 (defcommand shutdown () ()
   (run-shell-command "shutdown -h now"))
@@ -81,17 +93,23 @@
   (run-shell-command "xterm"))
 (defcommand emacsnw () ()
   (run-shell-command "urxvt -e emacs -nw"))
+(defcommand xx-net () ()
+  (run-shell-command "sudo sh /home/sgnh/.local/XX-Net-3.12.11/xx_net.sh"))
+
+(defcommand aaa (a)
+    ((:function "fas:"))
+  (format t "~a" a))
 
 (setq *message-window-y-padding* 8)
 
+;;(setq app-menu::*app-menu* `(("chrome" chrome)
+;;			     (,(concat "^f4^3" (string #\Ue926) "^*^f0 Emacs") emacs)
+;;			     (,(concat "^f4^2" (string #\Uf0c8) "^*^f0 Term") urxvt)
+;;			     ("pdf" pdf)
+;;			     ("xx-net" xx-net)))
 
-(setq app-menu::*app-menu* '(("Chrome" chrome)
-			     ("Term" urxvt)
-			     ("pdf" pdf)))
 
-(define-key *root-map* (kbd "m") "show-menu")
-
-(define-key *root-map* (kbd "u") "remove-split")
+(define-key *root-map* (kbd "u") "only")
 
 (define-key *root-map* (kbd "w") "pull-from-windowlist")
 ;; (define-key *root-map* (kbd "e") "swm-emacs")
@@ -119,15 +137,51 @@
 
 
 
-(defmacro add-to-list (list emt)
-  `(setf ,list (append ,list (list ,emt))))
+(defcommand volume+ () ()
+  (volume-control :add))
 
+(defcommand volume- () ()
+  (volume-control :dec))
+(defcommand volume-toggle-mute () ()
+  (if (volume-mute-p)
+      (volume-control :unmute)
+      (volume-control :mute)))
 (define-key *top-map* (kbd "XF86MonBrightnessUp") "brightness 1")
 (define-key *top-map* (kbd "XF86MonBrightnessDown") "brightness 0")
+(define-key *top-map* (kbd "XF86AudioLowerVolume") "volume-")
+(define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume+")
+(define-key *top-map* (kbd "XF86AudioMute") "volume-toggle-mute")
 (define-key *top-map* (kbd "F12") "fullscreen")
+(define-interactive-keymap toggle-window  ()
+  ((kbd "j") "next")
+  ((kbd "k") "prev"))
 
+(define-remapped-keys '(("URxvt"
+			 ("C-y" . ("M-p" "+")))
+			("Chromium"
+			 ("C-p" . "Up")
+			 ("C-n" . "Down"))))
+
+(defcommand auto-tile () ()
+  (funcall *expose-auto-tile-fn* nil
+	   (current-group (current-screen)))
+  (run-commands "fselect"))
+
+(defvar *start-menu-item* '(("emacs" . "emacs")
+			    ("chrome" . "chrome")
+			    ("xx-net" . "xx-net")
+			    ("shutdown" . "shutdown")
+			    ("reboot" . "reboot")))
+
+(defcommand start-menu () ()
+  (when *start-menu-item*
+    (let* ((res (cdr (select-from-menu (current-screen) *start-menu-item*))))
+      (run-commands res))))
+
+(define-key *root-map* (kbd "m") "start-menu")
 
 (swank-loader:init)
+
 (defcommand swank () ()
   (setf *top-level-error-action* :break)
   (swank:create-server :port 4005
@@ -136,6 +190,7 @@
   (echo-string
    (current-screen)
    "Starting swank. M-x slime-connect RET RET then (in-package :stumpwm)."))
-
 (swank)
+
+(run-shell-command "xcape")
 
